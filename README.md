@@ -13,6 +13,33 @@ A **professional, motion-rich** personal portfolio built with Next.js, TypeScrip
 - **Clean Architecture**: Reusable components and data-driven approach
 - **Interactive Elements**: Hover effects, scroll-triggered animations, and micro-interactions
 
+## 🚀 Deployment
+
+### Option 1: Deploy with Vercel (Recommended)
+
+1. **Push to GitHub**:
+   - Create a new repository on GitHub: `https://github.com/new`
+   - Run the following commands in your terminal:
+     ```bash
+     git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+     git branch -M main
+     git push -u origin main
+     ```
+
+2. **Connect to Vercel**:
+   - Go to [Vercel Dashboard](https://vercel.com/dashboard)
+   - Click "Add New..." -> "Project"
+   - Use the "Import Git Repository" option and select your new GitHub repo.
+   - Vercel will automatically detect Next.js. Just click **Deploy**.
+
+3. **Get Your URL**:
+   - Once deployed, Vercel gives you a live URL (e.g., `https://portfolio-reagan.vercel.app`).
+   - Add this URL to your GitHub repository "About" section as the "Website" link.
+
+### Option 2: Deploy to GitHub Pages
+
+If you prefer GitHub Pages, update `next.config.ts` to include `output: 'export'`, then run `npm run build` and deploy the `out` directory.
+
 ## ✨ **What Makes This Portfolio Special**
 
 - **Cinematic Hero Section**: Typewriter effects and staggered animations
