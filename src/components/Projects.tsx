@@ -1,267 +1,240 @@
-"use client";
+'use client';
 
-import { flagshipProjects, mlProjects, webProjects } from "@/data/projects";
-import { ExternalLink, Lock, Zap, Brain, Globe } from "lucide-react";
-import { motion } from "framer-motion";
-import { useInView } from "framer-motion";
-import { useRef, useState } from "react";
+import { useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { projectsData, Project } from '@/data/projects';
+import { ExternalLink, Github, X, ChevronRight, Code } from 'lucide-react';
+import { useInView } from 'framer-motion';
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.2,
-      delayChildren: 0.3
-    }
-  }
+// --- Project Card Component ---
+const ProjectCard = ({ project, onClick }: { project: Project; onClick: (p: Project) => void }) => {
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      whileHover={{ y: -5 }}
+      onClick={() => onClick(project)}
+      className="group bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl p-5 cursor-pointer hover:border-orange-500/50 hover:bg-slate-800/80 transition-all duration-300 flex flex-col h-full"
+    >
+      <div className="flex justify-between items-start mb-3">
+        <h3 className="text-xl font-bold text-white group-hover:text-orange-400 transition-colors">
+          {project.title}
+        </h3>
+        {project.status === "private" ? (
+          <span className="text-xs px-2 py-1 rounded-full bg-slate-700 text-slate-400">Private</span>
+        ) : (
+          <span className={`text-xs px-2 py-1 rounded-full ${project.status === "live" ? "bg-green-500/20 text-green-400" : "bg-blue-500/20 text-blue-400"}`}>
+            {project.status === "live" ? "Live" : project.status}
+          </span>
+        )}
+      </div>
+
+      <p className="text-slate-400 text-sm mb-4 line-clamp-3">
+        {project.description}
+      </p>
+
+      <div className="mt-auto">
+        <div className="flex flex-wrap gap-2 mb-4">
+          {project.techStack.slice(0, 3).map((tech) => (
+            <motion.span 
+              key={tech} 
+              whileHover={{ scale: 1.1, backgroundColor: "rgba(249, 115, 22, 0.1)", borderColor: "rgba(249, 115, 22, 0.5)" }}
+              className="text-xs text-slate-400 bg-slate-900/50 px-2 py-1 rounded border border-slate-700 cursor-default transition-colors duration-200"
+            >
+              {tech}
+            </motion.span>
+          ))}
+          {project.techStack.length > 3 && (
+            <span className="text-xs text-slate-500 px-2 py-1">+{project.techStack.length - 3}</span>
+          )}
+        </div>
+        
+        {project.impact && (
+          <div className="text-xs text-orange-400/80 mb-2 font-medium">
+             ✨ {project.impact}
+          </div>
+        )}
+
+        <div className="flex items-center text-orange-400 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0 duration-300">
+          View Details <ChevronRight className="w-4 h-4 ml-1" />
+        </div>
+      </div>
+    </motion.div>
+  );
 };
 
-const cardVariants = {
-  hidden: { opacity: 0, y: 50, rotateX: 15 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    rotateX: 0,
-    transition: {
-      duration: 0.8
-    }
-  }
-};
+// --- Modal Component ---
+const ProjectModal = ({ project, onClose }: { project: Project; onClose: () => void }) => {
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 px-4">
+      <div 
+        onClick={onClose}
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+      />
+      <motion.div
+        layoutId={`project-${project.id}`}
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+        className="relative bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden z-10 max-h-[90vh] overflow-y-auto"
+      >
+        <div className="p-6 md:p-8">
+          <button 
+            onClick={onClose}
+            className="absolute top-4 right-4 p-2 bg-slate-800 rounded-full hover:bg-slate-700 transition-colors z-20"
+          >
+            <X className="w-5 h-5 text-slate-400" />
+          </button>
 
-const categories = [
-  { id: "flagship", label: "Flagship Projects", icon: Zap, projects: flagshipProjects, color: "blue" },
-  { id: "ml", label: "ML & Data Science", icon: Brain, projects: mlProjects, color: "emerald" },
-  { id: "web", label: "Web & Application Portfolio", icon: Globe, projects: webProjects, color: "violet" }
-];
+          <h2 className="text-3xl font-bold text-white mb-2 pr-8">{project.title}</h2>
+          
+          <div className="flex items-center gap-3 mb-6 flex-wrap">
+            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+              project.status === "live" || project.status === "published" ? "bg-green-500/10 text-green-400 border border-green-500/20" : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+            }`}>
+              {project.status === "published" ? "Research Published" : project.status.toUpperCase()}
+            </span>
+            {project.category === "flagship" && (
+              <span className="px-3 py-1 rounded-full text-xs font-medium bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                Featured
+              </span>
+            )}
+          </div>
 
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case "live": return "bg-green-100 text-green-700";
-    case "development": return "bg-blue-100 text-blue-700";
-    case "research": return "bg-purple-100 text-purple-700";
-    case "private": return "bg-gray-100 text-gray-700";
-    default: return "bg-gray-100 text-gray-700";
-  }
-};
+          <div className="prose prose-invert max-w-none mb-8">
+            <p className="text-slate-300 text-lg leading-relaxed">
+              {project.longDescription || project.description}
+            </p>
+          </div>
 
-const getCategoryColor = (color: string) => {
-  const colors = {
-    blue: {
-      gradient: "from-blue-500 to-indigo-500",
-      bg: "from-blue-50 to-indigo-50",
-      border: "border-blue-200",
-      text: "text-blue-600",
-      hover: "hover:border-blue-300"
-    },
-    emerald: {
-      gradient: "from-emerald-500 to-green-500",
-      bg: "from-emerald-50 to-green-50",
-      border: "border-emerald-200",
-      text: "text-emerald-600",
-      hover: "hover:border-emerald-300"
-    },
-    violet: {
-      gradient: "from-violet-500 to-purple-500",
-      bg: "from-violet-50 to-purple-50",
-      border: "border-violet-200",
-      text: "text-violet-600",
-      hover: "hover:border-violet-300"
-    }
-  };
-  return colors[color as keyof typeof colors] || colors.blue;
+          <div className="mb-8">
+            <h4 className="text-sm uppercase tracking-wider text-slate-500 font-bold mb-3 flex items-center gap-2">
+              <Code className="w-4 h-4" /> Tech Stack From Tools
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {project.techStack.map((tech) => (
+                <motion.span 
+                  key={tech} 
+                  whileHover={{ 
+                    scale: 1.1, 
+                    backgroundColor: "rgba(249, 115, 22, 0.15)",
+                    boxShadow: "0 0 10px rgba(249, 115, 22, 0.3)"
+                  }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-3 py-1.5 bg-slate-800 text-slate-300 rounded-lg text-sm border border-slate-700 shadow-sm cursor-default"
+                >
+                  {tech}
+                </motion.span>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-4 pt-4 border-t border-slate-800">
+            {project.githubLink && (
+              <a
+                href={project.githubLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl transition-all font-medium"
+              >
+                <Github className="w-5 h-5" />
+                View Code
+              </a>
+            )}
+            {project.liveLink && (
+              <a
+                href={project.liveLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-xl transition-all font-medium shadow-lg shadow-orange-900/20"
+              >
+                <ExternalLink className="w-5 h-5" />
+                Live Demo
+              </a>
+            )}
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
 };
 
 export default function Projects() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-50px" });
-  const [activeCategory, setActiveCategory] = useState("flagship");
+  const [activeTab, setActiveTab] = useState("flagship");
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const containerRef = useRef(null);
+  const isInView = useInView(containerRef, { once: true, margin: "-100px" });
 
-  const currentCategory = categories.find(cat => cat.id === activeCategory);
-  const colors = getCategoryColor(currentCategory?.color || "blue");
+  const tabs = [
+    { id: "flagship", label: "🔥 Featured" },
+    { id: "web-app", label: "💻 Web & Apps" },
+    { id: "ml-research", label: "🧪 ML & Research" },
+    { id: "dsa-core", label: "⚙️ Core & Open Source" },
+  ];
+
+  const filteredProjects = projectsData.filter(p => p.category === activeTab);
 
   return (
-    <section id="projects" className="py-24 bg-slate-900 relative overflow-hidden" ref={ref}>
-      {/* Background decoration */}
-      <motion.div 
-        className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-r from-violet-100 to-transparent rounded-full blur-3xl"
-        initial={{ scale: 0, x: -100 }}
-        animate={isInView ? { scale: 1, x: 0 } : { scale: 0, x: -100 }}
-        transition={{ duration: 1.5 }}
-      />
-      
-      <div className="max-w-7xl mx-auto px-4 relative">
+    <section id="projects" className="py-24 bg-slate-900 relative" ref={containerRef}>
+      <div className="container mx-auto px-6 max-w-7xl">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ duration: 0.8 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">
-            Featured Projects
+          <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+            Featured <span className="text-orange-500">Work</span>
           </h2>
-          <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-            Flagship builds first (KneeCare, EduSign, Fitliya), with portfolio and research-aligned engineering work organized clearly.
+          <p className="text-slate-400 max-w-2xl mx-auto">
+            A curated selection of my technical projects, research publications, and open-source contributions.
           </p>
         </motion.div>
-        
-        {/* Category Tabs */}
-        <motion.div 
-          className="flex flex-wrap justify-center gap-4 mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ delay: 0.3, duration: 0.6 }}
-        >
-          {categories.map((category) => {
-            const Icon = category.icon;
-            const isActive = activeCategory === category.id;
-            const catColors = getCategoryColor(category.color);
-            
-            return (
-              <motion.button
-                key={category.id}
-                onClick={() => setActiveCategory(category.id)}
-                className={`flex items-center gap-3 px-6 py-3 rounded-2xl font-semibold transition-all duration-300 border-2 ${
-                  isActive 
-                    ? `bg-gradient-to-r ${catColors.gradient} text-white border-transparent shadow-lg` 
-                    : `bg-slate-800 text-slate-200 border-slate-700 hover:border-slate-500`
-                }`}
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Icon size={20} />
-                <span>{category.label}</span>
-                <span className={`px-2 py-1 rounded-full text-xs ${
-                  isActive ? "bg-white/20" : "bg-slate-700 text-slate-200"
-                }`}>
-                  {category.projects.length}
-                </span>
-              </motion.button>
-            );
-          })}
-        </motion.div>
-        
-        {/* Projects Grid */}
-        <motion.div
-          key={activeCategory}
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-        >
-          {currentCategory?.projects.map((project, index) => (
-            <motion.div
-              key={project.id}
-              variants={cardVariants}
-              whileHover={{ 
-                y: -8, 
-                scale: 1.02,
-                rotateY: 5,
-                transition: { type: "spring", stiffness: 300, damping: 20 }
-              }}
-              className={`group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 ${colors.border} ${colors.hover} relative`}
+
+        {/* Tabs */}
+        <div className="flex flex-wrap justify-center gap-4 mb-12">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                activeTab === tab.id
+                  ? "bg-orange-500 text-white shadow-lg shadow-orange-500/25"
+                  : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white"
+              }`}
             >
-              {/* Status badge */}
-              <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
-                  {project.status === 'private' && <Lock size={12} className="inline mr-1" />}
-                  {project.status}
-                </span>
-              </div>
-              
-              {/* Card glow effect */}
-              <motion.div 
-                className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300 bg-gradient-to-br ${colors.gradient} rounded-2xl`}
-                initial={false}
-              />
-              
-              <div className="p-6 relative z-10">
-                <motion.h3 
-                  className="text-xl font-bold text-slate-900 mb-3 group-hover:text-slate-800 transition-colors pr-8"
-                >
-                  {project.title}
-                </motion.h3>
-                
-                <motion.p 
-                  className="text-slate-700 mb-6 leading-relaxed text-sm line-clamp-4"
-                >
-                  {project.description}
-                </motion.p>
-                
-                {/* Impact/Stats */}
-                {project.impact && (
-                  <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                    <p className="text-xs text-gray-600 font-medium">
-                      🎯 {project.impact}
-                    </p>
-                  </div>
-                )}
-                
-                {/* Tech Stack */}
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {project.techStack.slice(0, 3).map((tech, techIndex) => (
-                    <motion.span
-                      key={techIndex}
-                      className={`px-3 py-1 text-xs font-medium rounded-full bg-gradient-to-r ${colors.gradient} text-white`}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: techIndex * 0.1 + 0.5 }}
-                    >
-                      {tech}
-                    </motion.span>
-                  ))}
-                  {project.techStack.length > 3 && (
-                    <span className="px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600">
-                      +{project.techStack.length - 3}
-                    </span>
-                  )}
-                </div>
-                
-                {/* Action button */}
-                <motion.a
-                  href={project.githubLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${colors.gradient} text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-300 text-sm`}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <span>View Project</span>
-                  <ExternalLink size={16} />
-                </motion.a>
-              </div>
-              
-              {/* Bottom accent line */}
-              <motion.div 
-                className={`h-1 w-full bg-gradient-to-r ${colors.gradient}`}
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ delay: index * 0.1 + 0.7, duration: 0.8 }}
-              />
-            </motion.div>
+              {tab.label}
+            </button>
           ))}
-        </motion.div>
-        
-        {/* View All Projects CTA */}
-        <motion.div 
-          className="text-center mt-12"
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ delay: 1, duration: 0.8 }}
+        </div>
+
+        {/* Grid */}
+        <motion.div
+          layout
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          <motion.a
-            href="https://github.com/ReaganMurgesh"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-slate-800 to-slate-700 text-white font-semibold rounded-2xl hover:from-slate-700 hover:to-slate-600 transition-all duration-300 shadow-lg hover:shadow-xl"
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <span>View All {flagshipProjects.length + mlProjects.length + webProjects.length}+ Projects</span>
-            <ExternalLink size={20} />
-          </motion.a>
+          <AnimatePresence mode="popLayout">
+            {filteredProjects.map((project) => (
+              <ProjectCard 
+                key={project.id} 
+                project={project} 
+                onClick={setSelectedProject} 
+              />
+            ))}
+          </AnimatePresence>
         </motion.div>
       </div>
+
+      {/* Detail Overlay */}
+      <AnimatePresence>
+        {selectedProject && (
+          <ProjectModal 
+            project={selectedProject} 
+            onClose={() => setSelectedProject(null)} 
+          />
+        )}
+      </AnimatePresence>
     </section>
   );
 }

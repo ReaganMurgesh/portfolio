@@ -76,8 +76,8 @@ export default function Footer() {
         animate={{ opacity: 1 }}
         transition={{ duration: 1.5 }}
       >
-        <div className="absolute top-0 left-0 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-0 w-72 h-72 bg-orange-500/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl" />
       </motion.div>
       
       <div className="max-w-4xl mx-auto px-4 relative z-10">
@@ -87,6 +87,21 @@ export default function Footer() {
           animate={isInView ? "visible" : "hidden"}
           className="text-center"
         >
+          {/* M.S. Dhoni Quote */}
+          <motion.div 
+            variants={itemVariants} 
+            className="mb-16 border-b border-white/5 pb-12"
+          >
+            <p className="text-xl md:text-2xl font-mono text-white mb-4 italic">
+              "Process is more important than the result."
+            </p>
+            <div className="flex items-center justify-center gap-3">
+              <div className="h-0.5 w-8 bg-orange-500" />
+              <span className="text-slate-400 text-sm uppercase tracking-widest font-bold">M.S. Dhoni</span>
+              <div className="h-0.5 w-8 bg-orange-500" />
+            </div>
+          </motion.div>
+
           {/* CTA Text */}
           <motion.div variants={itemVariants} className="mb-10">
             <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">

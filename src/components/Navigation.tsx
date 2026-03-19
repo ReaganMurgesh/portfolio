@@ -5,12 +5,10 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 
 const navigationItems = [
-  { name: "Home", href: "#home" },
-  { name: "Skills", href: "#skills" },
+  { name: "Home", href: "#" },
   { name: "Internship", href: "#internship" },
+  { name: "Skills", href: "#skills" },
   { name: "Projects", href: "#projects" },
-  { name: "Research", href: "#research" },
-  { name: "Contact", href: "#contact" }
 ];
 
 export default function Navigation() {

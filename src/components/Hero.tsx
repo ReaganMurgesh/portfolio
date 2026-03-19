@@ -6,9 +6,8 @@ import { Github, Linkedin, Download, Mail } from "lucide-react";
 
 const stats = [
   { number: "17+", label: "Projects" },
-  { number: "2+", label: "Research Papers" },
-  { number: "8+", label: "Certifications" },
-  { number: "3+", label: "Years Experience" }
+  { number: "3+", label: "Years Experience" },
+  { number: "1", label: "Global Internship" }
 ];
 
 const socialLinks = [
@@ -138,14 +137,14 @@ export default function Hero() {
               </motion.a>
               
               <motion.a
-                href="/Reagan_Murgesh_Resume.pdf"
+                href="/M_REAGAN_RESUME_SE.pdf"
                 download
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent border-2 border-slate-600 text-slate-300 font-semibold rounded-full hover:border-orange-500 hover:text-orange-500 transition-all duration-300"
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.98 }}
               >
                 <Download className="w-4 h-4" />
-                Download CV
+                Download Resume
               </motion.a>
             </motion.div>
           </motion.div>
