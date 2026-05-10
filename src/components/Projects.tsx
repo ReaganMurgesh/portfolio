@@ -6,6 +6,12 @@ import { projectsData, Project } from '@/data/projects';
 import { ExternalLink, Github, X, ChevronRight, Code } from 'lucide-react';
 import { useInView } from 'framer-motion';
 
+const getStatusLabel = (status: Project["status"]) => {
+  if (status === "development") return "In Progress";
+  if (status === "published") return "Research Published";
+  return status === "live" ? "Live" : status.toUpperCase();
+};
+
 // --- Project Card Component ---
 const ProjectCard = ({ project, onClick }: { project: Project; onClick: (p: Project) => void }) => {
   return (
@@ -26,7 +32,7 @@ const ProjectCard = ({ project, onClick }: { project: Project; onClick: (p: Proj
           <span className="text-xs px-2 py-1 rounded-full bg-slate-700 text-slate-400">Private</span>
         ) : (
           <span className={`text-xs px-2 py-1 rounded-full ${project.status === "live" ? "bg-green-500/20 text-green-400" : "bg-blue-500/20 text-blue-400"}`}>
-            {project.status === "live" ? "Live" : project.status}
+            {getStatusLabel(project.status)}
           </span>
         )}
       </div>
@@ -94,7 +100,7 @@ const ProjectModal = ({ project, onClose }: { project: Project; onClose: () => v
             <span className={`px-3 py-1 rounded-full text-xs font-medium ${
               project.status === "live" || project.status === "published" ? "bg-green-500/10 text-green-400 border border-green-500/20" : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
             }`}>
-              {project.status === "published" ? "Research Published" : project.status.toUpperCase()}
+              {getStatusLabel(project.status)}
             </span>
             {project.category === "flagship" && (
               <span className="px-3 py-1 rounded-full text-xs font-medium bg-orange-500/10 text-orange-400 border border-orange-500/20">

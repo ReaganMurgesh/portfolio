@@ -76,6 +76,17 @@ export const projectsData: Project[] = [
     impact: "Full-Stack E-commerce Solution",
     featured: true
   },
+  {
+    id: "samajh",
+    title: "SAMAJH - Civic Intelligence Platform",
+    description: "An in-progress civic intelligence platform that explains government information in simple language.",
+    longDescription: "SAMAJH is a Streamlit-based civic intelligence platform that helps users understand government schemes, policies, and public documents through three modes: an official database, document upload Q&A, and live web search. It uses Groq, ChromaDB, and a retrieval-augmented generation pipeline to ground answers in source evidence, support follow-up questions, and handle multilingual civic content.",
+    techStack: ["Python", "Streamlit", "Groq", "ChromaDB", "RAG", "sentence-transformers"],
+    status: "development",
+    category: "flagship",
+    impact: "In Progress Civic Intelligence Platform",
+    featured: true
+  },
 
   // --- WEB & APPS ---
   {
