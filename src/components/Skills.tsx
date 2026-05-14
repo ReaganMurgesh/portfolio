@@ -5,7 +5,7 @@ import { useInView } from "framer-motion";
 import { useRef } from "react";
 import { Settings, ArrowRight, Code2, Terminal, Cpu, Cloud, Layers, Database, Smartphone } from "lucide-react";
 
-// Icons map
+// Icons map()
 const icons = {
   Languages: <Code2 className="w-6 h-6 text-orange-500" />,
   "Frontend & App Dev": <Smartphone className="w-6 h-6 text-orange-500" />,
