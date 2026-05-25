@@ -15,11 +15,11 @@ A **professional, motion-rich** personal portfolio built with Next.js, TypeScrip
 
 ## 🚀 Deployment
 
-### Option 1: Deploy with Vercel (Recommended)
+### Op 1: Deploy with Vercel (Recommended)
 
 1. **Push to GitHub**:
    - Create a new repository on GitHub: `https://github.com/new`
-   - Run the following commands in your terminal:
+   - Run the following commands in your terminal
      ```bash
      git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
      git branch -M main
